@@ -47,7 +47,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         var tank = SKSpriteNode(imageNamed: "tank")
         //var tankShape = SKShapeNode()
-        var bBullet = SKShapeNode()
+        //var bBullet = SKShapeNode()
         
         var labelangle = SKLabelNode()
         var labelpower = SKLabelNode()
@@ -56,43 +56,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         func setBullet() {
             bullet.removeFromParent()
-            bBullet.removeFromParent()
-            bBullet.setScale(1)
-            bBullet = SKShapeNode(rectOf: CGSize(width: 100, height: 30))
-            bBullet.fillColor = grids ? .black : .clear
-            bBullet.strokeColor = .clear
-            bBullet.position = self.tank.position
-            bBullet.zPosition = 3
-            bullet.size = bBullet.frame.size
-            bBullet.addChild(bullet)
+            //bBullet.removeFromParent()
+            //bBullet.setScale(1)
+            //bBullet = SKShapeNode(rectOf: CGSize(width: 100, height: 30))
+            //bBullet.fillColor = grids ? .black : .clear
+            //bBullet.strokeColor = .clear
+            //bBullet.position = self.tank.position
+            //bBullet.zPosition = 3
+            //bullet.size = bBullet.frame.size
+            //bBullet.addChild(bullet)
             
-            bBullet.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "bullet"), size: bullet.size)
-            bBullet.physicsBody?.categoryBitMask = pc.bullet
-            bBullet.physicsBody?.collisionBitMask = pc.ground
-            bBullet.physicsBody?.contactTestBitMask = pc.tank
-            bBullet.physicsBody?.affectedByGravity = true
-            bBullet.physicsBody?.isDynamic = true
+            bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.size)
+            bullet.physicsBody!.categoryBitMask = pc.bullet
+            bullet.physicsBody!.collisionBitMask = pc.ground
+            bullet.physicsBody!.contactTestBitMask = pc.tank
+            bullet.physicsBody!.affectedByGravity = true
+            bullet.physicsBody!.isDynamic = true
         }
         func fire(angle: Double, vel: Double){
             setBullet()
-            GameScene.addChild(bBullet)
+            //GameScene.addChild(bBullet)
             let x = vel * cos(angle)
             let y = vel * sin(angle)
             let shotVec = CGVector(dx: x, dy: y)
-            bBullet.physicsBody?.applyImpulse(shotVec)
+            bullet.physicsBody!.applyImpulse(shotVec)
             
             let wait4 = SKAction.wait(forDuration: 4)
             let reset = SKAction.run({
                 self.setBullet()
             })
-            self.bBullet.run(SKAction.sequence([wait4, reset]))
+            self.bullet.run(SKAction.sequence([wait4, reset]))
         }
         func setArrow() {
             arrow.setScale(0.5)
-            arrow.anchorPoint = CGPoint(x:0.5,y: 0)
+            arrow.anchorPoint = CGPoint(x:0,y: 0.5)
             arrow.position = CGPoint(x: self.tank.position.x, y: self.tank.position.y)
             arrow.zPosition = 1
-            GameScene.addChild(arrow)
+            self.addChild(arrow)
         }
         
     }
@@ -144,6 +144,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch: AnyObject in touches {
             fingerlocation = touch.location(in: self)
+            one.setArrow()
         }
         
     }
