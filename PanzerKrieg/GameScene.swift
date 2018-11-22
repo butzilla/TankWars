@@ -42,6 +42,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var numalive = 2
     var currentplayer = 0
     var ground = SKShapeNode()
+    var explosion = SKSpriteNode()
+
     
     class player {
         
@@ -113,19 +115,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if body2.categoryBitMask == pc.ground {
-            playernum[currentplayer].setBullet()
-            playernum[currentplayer].currentState = .aiming
+            explode(contactPoint: contact.contactPoint)
+            
             if currentplayer >= nplayer - 1 {
                 currentplayer = 0
             }
             else {
                 currentplayer += 1
             }
+            playernum[currentplayer].setBullet()
+            playernum[currentplayer].currentState = .aiming
+
         }
         
-        // if body2.categoryBitMask == pc.tank {
-        //     setBullet()
-        // }
+         if body2.categoryBitMask == pc.tank {
+            explode(contactPoint: contact.contactPoint)
+            if currentplayer >= nplayer - 1 {
+                currentplayer = 0
+            }
+            else {
+                currentplayer += 1
+            }
+             playernum[currentplayer].setBullet()
+         }
         
     }
     
@@ -205,6 +217,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         physicsWorld.gravity = CGVector(dx: 0, dy: c.grav)
         
+        explosion = SKSpriteNode(imageNamed: "explosion")
+        
         let background = SKSpriteNode(imageNamed: "background")
         background.size = self.size
         background.position = CGPoint(x: self.size.width/2, y: self.size.height/2)
@@ -221,7 +235,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum[i].tank.physicsBody!.affectedByGravity = false
             playernum[i].tank.physicsBody!.categoryBitMask = pc.tank
             playernum[i].tank.physicsBody!.collisionBitMask = pc.none
-            playernum[i].tank.physicsBody!.contactTestBitMask = pc.bullet
+            playernum[i].tank.physicsBody!.contactTestBitMask = pc.none
             self.addChild(playernum[i].tank)
         }
         
@@ -280,8 +294,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.arrow.zPosition = 1
         self.addChild(player.arrow)
     }
-    
-    
+    func explode (contactPoint: CGPoint) {
+        explosion.setScale(0.1)
+        explosion.position = contactPoint
+        explosion.zPosition = 10
+        let shockwave = SKShapeNode(circleOfRadius: 1)
+        addChild(explosion)
+        explosion.addChild(shockwave)
+        explosion.run(shockWaveAction)
+        shockwave.removeFromParent()
+        explosion.removeFromParent()
+    }
+    let shockWaveAction: SKAction = {
+        let growAndFadeAction = SKAction.group([SKAction.scale(to: 50, duration: 0.5),
+                                                SKAction.fadeOut(withDuration: 0.5)])
+        
+        let sequence = SKAction.sequence([growAndFadeAction,
+                                          SKAction.removeFromParent()])
+        
+        return sequence
+    }()
 }
 
 
