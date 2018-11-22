@@ -115,6 +115,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if body2.categoryBitMask == pc.ground {
             playernum[currentplayer].setBullet()
             playernum[currentplayer].currentState = .aiming
+            if currentplayer >= nplayer - 1 {
+                currentplayer = 0
+            }
+            else {
+                currentplayer += 1
+            }
         }
         
         // if body2.categoryBitMask == pc.tank {
@@ -124,7 +130,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        while numalive > 1 {
+        if numalive > 1 {
             switch playernum[currentplayer].currentState {
             case .aiming:
                 setArrow(player: playernum[currentplayer])
@@ -138,19 +144,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .dead:
                 print("tooot")
             }
-            if currentplayer >= nplayer - 1 {
-                currentplayer = 0
-            }
-            else {
-                currentplayer += 1
-            }
         }
-
-        
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        while numalive > 1{
+        if numalive > 1{
             switch playernum[currentplayer].currentState {
             case .aiming:
                 for touch: AnyObject in touches {
@@ -163,19 +161,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .dead:
                 print("tooot")
             }
-            if currentplayer >= nplayer - 1 {
-                currentplayer = 0
-            }
-            else {
-                currentplayer += 1
-            }
         }
     }
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        while numalive > 1{
+        if numalive > 1{
             switch playernum[currentplayer].currentState {
             case .aiming:
-                
                 for touch: AnyObject in touches {
                     fingerlocation = touch.location(in: self)
                 }
@@ -186,31 +177,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 print("powaaa")
             case .shooting:
                 print("shooot")
-                fire(angle: Double(playernum[1].radians), vel: 100, player: playernum[1])
+                fire(angle: Double(playernum[currentplayer].radians), vel: 100, player: playernum[currentplayer])
             case .dead:
                 print("tooot")
-            }
-            if currentplayer >= nplayer - 1 {
-                currentplayer = 0
-            }
-            else {
-                currentplayer += 1
             }
         }
     }
     
     override func update (_ currentTime: CFTimeInterval) {
-        while numalive > 1{
+       if numalive > 1{
             switch playernum[currentplayer].currentState {
             case .aiming:
                 playernum[currentplayer].radians = atan2(fingerlocation.y-playernum[currentplayer].tank.position.y, fingerlocation.x-playernum[currentplayer].tank.position.x)
                 playernum[currentplayer].arrow.zRotation = playernum[currentplayer].radians
-            case .powering:
-                print("powaaa")
-            case .shooting:
-                print("shooot")
-            case .dead:
-                print("tooot")
+            case .powering: break
+            case .shooting: break
+            case .dead: break
             }
         }
     }
@@ -233,7 +215,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum.append(player())
             
             playernum[i].tank.setScale(0.3)
-            playernum[i].tank.position = CGPoint(x: self.size.width*0.1, y: self.size.height*0.3)
+            playernum[i].tank.position = CGPoint(x: self.size.width / CGFloat(nplayer + 1) * CGFloat(i + 1), y: self.size.height*0.3)
             playernum[i].tank.zPosition = 4
             playernum[i].tank.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tank.size)
             playernum[i].tank.physicsBody!.affectedByGravity = false
@@ -257,7 +239,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         */
         
-        ground = SKShapeNode(rectOf: CGSize(width: self.frame.width, height: 5))
+        ground = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: 5))
         ground.fillColor = .red
         ground.strokeColor = .clear
         ground.position = CGPoint(x: self.frame.width / 2, y: self.frame.height * 2 / 10 - playernum[1].tank.frame.height / 2 - 5)
@@ -293,10 +275,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     func setArrow(player: player) {
         player.arrow.setScale(0.5)
-        player.arrow.anchorPoint = CGPoint(x:0.5,y: 0)
+        player.arrow.anchorPoint = CGPoint(x:0,y: 0.5)
         player.arrow.position = CGPoint(x: player.tank.position.x, y: player.tank.position.y)
         player.arrow.zPosition = 1
-        addChild(player.arrow)
+        self.addChild(player.arrow)
     }
     
     
