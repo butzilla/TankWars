@@ -26,6 +26,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         static let bullet: UInt32 = 0x1 << 1
         static let ground: UInt32 = 0x1 << 2
         static let tank: UInt32 = 0x1 << 3
+        static let tankpipe: UInt32 = 0x1 << 4
     }
     
     //let playerleft = SKSpriteNode(imageNamed: "playerleft")
@@ -60,7 +61,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let bullet = SKSpriteNode(imageNamed: "bullet")
         let arrow = SKSpriteNode(imageNamed: "arrow")
         
-        var tank = SKSpriteNode(imageNamed: "tank")
+        var tank = SKSpriteNode(imageNamed: "tankbody")
+        var tankpipe = SKSpriteNode(imageNamed: "tankpipe")
         //var tankShape = SKShapeNode()
         var bBullet = SKShapeNode()
         
@@ -76,7 +78,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             bBullet = SKShapeNode(rectOf: CGSize(width: 100, height: 30))
             bBullet.fillColor = grids ? .black : .clear
             bBullet.strokeColor = .clear
-            bBullet.position = self.tank.position
+            bBullet.position = self.tankpipe.position
             bBullet.zPosition = 3
             bullet.size = bBullet.frame.size
             bBullet.addChild(bullet)
@@ -137,6 +139,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 currentplayer += 1
             }
              playernum[currentplayer].setBullet()
+            playernum[currentplayer].currentState = .aiming
+
          }
         
     }
@@ -230,13 +234,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             playernum[i].tank.setScale(0.3)
             playernum[i].tank.position = CGPoint(x: self.size.width / CGFloat(nplayer + 1) * CGFloat(i + 1), y: self.size.height*0.3)
+            
             playernum[i].tank.zPosition = 4
             playernum[i].tank.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tank.size)
-            playernum[i].tank.physicsBody!.affectedByGravity = false
+            playernum[i].tank.physicsBody!.affectedByGravity = true
             playernum[i].tank.physicsBody!.categoryBitMask = pc.tank
-            playernum[i].tank.physicsBody!.collisionBitMask = pc.none
+            playernum[i].tank.physicsBody!.collisionBitMask = pc.ground
             playernum[i].tank.physicsBody!.contactTestBitMask = pc.none
             self.addChild(playernum[i].tank)
+            
+            playernum[i].tankpipe.setScale(0.3)
+            /*playernum[i].tankpipe.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tankpipe.size)
+            playernum[i].tankpipe.physicsBody!.affectedByGravity = false
+            playernum[i].tankpipe.physicsBody!.categoryBitMask = pc.tankpipe
+            playernum[i].tankpipe.physicsBody!.collisionBitMask = pc.ground
+            playernum[i].tankpipe.physicsBody!.contactTestBitMask = pc.bullet
+            */
+            //hier muss ein physics joint rein
+            
+            
+            playernum[i].tankpipe.position = playernum[i].tank.position
+            playernum[i].tankpipe.zPosition = 5
+            self.addChild(playernum[i].tankpipe)
+
         }
         
         
@@ -288,7 +308,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //player.bBullet.run(SKAction.sequence([wait4, reset]))
     }
     func setArrow(player: player) {
-        player.arrow.setScale(0.5)
+        player.arrow.setScale(0.3)
         player.arrow.anchorPoint = CGPoint(x:0,y: 0.5)
         player.arrow.position = CGPoint(x: player.tank.position.x, y: player.tank.position.y)
         player.arrow.zPosition = 1
