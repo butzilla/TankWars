@@ -260,12 +260,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func fire(angle: Double, vel: Double, player: player){
         player.setBullet()
-        addChild(player.bBullet)
+        addChild(player.bullet)
         player.arrow.removeFromParent()
         let x = vel * cos(angle)
         let y = vel * sin(angle)
         let shotVec = CGVector(dx: x, dy: y)
-        player.bBullet.physicsBody?.applyImpulse(shotVec)
+        player.bullet.physicsBody?.applyImpulse(shotVec)
         
         //let wait4 = SKAction.wait(forDuration: 4)
         //let reset = SKAction.run({
