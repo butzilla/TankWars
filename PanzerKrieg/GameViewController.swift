@@ -10,6 +10,7 @@ import UIKit
 import SpriteKit
 import GameplayKit
 
+
 class GameViewController: UIViewController {
     
     override func viewDidLoad() {
@@ -29,6 +30,8 @@ class GameViewController: UIViewController {
             
             view.showsFPS = true
             view.showsNodeCount = true
+            //PowerOut.isHidden = true
+            //PowerView.isHidden = true
         }
     }
     
@@ -47,4 +50,15 @@ class GameViewController: UIViewController {
     override var prefersStatusBarHidden: Bool {
         return true
     }
+    
+    @IBOutlet weak var PowerOut: UISlider!
+    @IBOutlet weak var PowerView: UILabel!
+        
+    @IBAction func setvalue(_ sender: Any) {
+    
+            // Get Float value from Slider when it is moved.
+            let value = Double(PowerOut.value)
+            PowerView.text = String(value)
+
+}
 }
