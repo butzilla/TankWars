@@ -14,6 +14,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var gameScene : GameScene!
     enum GameState {
         case aiming, powering, shooting, dead
+        init(){
+            self = .aiming
+        }
+        mutating func next() {
+            
+            if self == .aiming{
+                self = .powering
+            } else if self == .powering {
+                self = .shooting
+            } else if self == .shooting{
+                self = .aiming
+            }
+        }
     }
     
     struct c {
@@ -55,7 +68,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var power : CGFloat = 0
         var armor : CGFloat = 0
         
-        var currentState = GameState.aiming
+        var currentState = GameState()
         
         var menu = SKSpriteNode()
         let bullet = SKSpriteNode(imageNamed: "bullet")
@@ -64,7 +77,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var tank = SKSpriteNode(imageNamed: "tankbody")
         var tankpipe = SKSpriteNode(imageNamed: "tankpipe")
         //var tankShape = SKShapeNode()
-        var bBullet = SKShapeNode()
+       // var bBullet = SKShapeNode()
         
         var labelangle = SKLabelNode()
         var labelpower = SKLabelNode()
@@ -72,23 +85,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         func setBullet() {
-            bullet.removeFromParent()
-            bBullet.removeFromParent()
-            bBullet.setScale(1)
-            bBullet = SKShapeNode(rectOf: CGSize(width: 100, height: 30))
-            bBullet.fillColor = grids ? .black : .clear
-            bBullet.strokeColor = .clear
-            bBullet.position = self.tankpipe.position
-            bBullet.zPosition = 3
-            bullet.size = bBullet.frame.size
-            bBullet.addChild(bullet)
+            //bullet.removeFromParent()
+            //bBullet.removeFromParent()
+            //bBullet.setScale(1)
+            //bBullet = SKShapeNode(rectOf: CGSize(width: 100, height: 30))
+            //bBullet.fillColor = grids ? .black : .clear
+            //bBullet.strokeColor = .clear
+            //bBullet.position = self.tank.position
+            //bBullet.zPosition = 3
+            //bullet.size = bBullet.frame.size
+            //bBullet.addChild(bullet)
             
-            bBullet.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "bullet"), size: bullet.size)
-            bBullet.physicsBody?.categoryBitMask = pc.bullet
-            bBullet.physicsBody?.collisionBitMask = pc.ground
-            bBullet.physicsBody?.contactTestBitMask = pc.tank
-            bBullet.physicsBody?.affectedByGravity = true
-            bBullet.physicsBody?.isDynamic = true
+            bullet.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "bullet"), size: bullet.size)
+            bullet.position = self.tank.position
+            bullet.setScale(0.1)
+            bullet.zPosition = 3
+            bullet.physicsBody?.categoryBitMask = pc.bullet
+            bullet.physicsBody?.collisionBitMask = pc.ground
+            bullet.physicsBody?.contactTestBitMask = pc.tank
+            bullet.physicsBody?.affectedByGravity = true
+            bullet.physicsBody?.isDynamic = true
+            
         }
         
         
@@ -188,7 +205,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
                 playernum[currentplayer].radians = atan2(fingerlocation.y-playernum[currentplayer].tank.position.y, fingerlocation.x-playernum[currentplayer].tank.position.x)
                 playernum[currentplayer].arrow.zRotation = playernum[currentplayer].radians
-                playernum[currentplayer].currentState = .shooting
+                //playernum[currentplayer].currentState = .shooting
             case .powering:
                 print("powaaa")
             case .shooting:
@@ -197,7 +214,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .dead:
                 print("tooot")
             }
-        }
+        }   playernum[currentplayer].currentState.next()
     }
     
     override func update (_ currentTime: CFTimeInterval) {
@@ -207,10 +224,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 playernum[currentplayer].radians = atan2(fingerlocation.y-playernum[currentplayer].tank.position.y, fingerlocation.x-playernum[currentplayer].tank.position.x)
                 playernum[currentplayer].arrow.zRotation = playernum[currentplayer].radians
             case .powering: break
+                //viewController.PowerOut.isHidden = false
             case .shooting: break
             case .dead: break
             }
         }
+        print(playernum[currentplayer].currentState)
     }
     
     func setUpGame() {
@@ -240,7 +259,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum[i].tank.physicsBody!.affectedByGravity = true
             playernum[i].tank.physicsBody!.categoryBitMask = pc.tank
             playernum[i].tank.physicsBody!.collisionBitMask = pc.ground
-            playernum[i].tank.physicsBody!.contactTestBitMask = pc.none
+            playernum[i].tank.physicsBody!.contactTestBitMask = pc.bullet
             self.addChild(playernum[i].tank)
             
             playernum[i].tankpipe.setScale(0.3)
@@ -308,7 +327,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //player.bBullet.run(SKAction.sequence([wait4, reset]))
     }
     func setArrow(player: player) {
-        player.arrow.setScale(0.3)
+        player.arrow.setScale(0.5)
         player.arrow.anchorPoint = CGPoint(x:0,y: 0.5)
         player.arrow.position = CGPoint(x: player.tank.position.x, y: player.tank.position.y)
         player.arrow.zPosition = 1
