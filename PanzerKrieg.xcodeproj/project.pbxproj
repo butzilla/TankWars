@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C644A6D621B18D0D00DE63C2 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = C644A6D521B18D0D00DE63C2 /* Button.swift */; };
 		F44812F721A5F68900B6F418 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44812F621A5F68900B6F418 /* AppDelegate.swift */; };
 		F44812F921A5F68900B6F418 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = F44812F821A5F68900B6F418 /* GameScene.sks */; };
 		F44812FB21A5F68900B6F418 /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = F44812FA21A5F68900B6F418 /* Actions.sks */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C644A6D521B18D0D00DE63C2 /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
 		F44812F321A5F68900B6F418 /* PanzerKrieg.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PanzerKrieg.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44812F621A5F68900B6F418 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F44812F821A5F68900B6F418 /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -112,6 +114,7 @@
 				F448130321A5F68900B6F418 /* Assets.xcassets */,
 				F448130521A5F68900B6F418 /* LaunchScreen.storyboard */,
 				F448130821A5F68900B6F418 /* Info.plist */,
+				C644A6D521B18D0D00DE63C2 /* Button.swift */,
 			);
 			path = PanzerKrieg;
 			sourceTree = "<group>";
@@ -270,6 +273,7 @@
 				F44812FD21A5F68900B6F418 /* GameScene.swift in Sources */,
 				F44812FF21A5F68900B6F418 /* GameViewController.swift in Sources */,
 				F44812F721A5F68900B6F418 /* AppDelegate.swift in Sources */,
+				C644A6D621B18D0D00DE63C2 /* Button.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
