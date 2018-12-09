@@ -22,6 +22,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var numalive = 2
     var currentplayer = 0
     var ground = SKShapeNode()
+    let cropNode = SKCropNode()
     var explosion = SKSpriteNode()
     
     
@@ -39,6 +40,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             } else if self == .shooting{
                 self = .aiming
             }
+            else if self == .dead {
+                self = .dead
+            }
         }
     }
     
@@ -47,15 +51,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if numalive > 1{
             switch playernum[currentplayer].currentState {
-            case .aiming: break
+            case .aiming:
+                playernum[currentplayer].currentState.next()
             case .powering:
                 fire(angle: Double(playernum[currentplayer].radians), vel: 5000, player: playernum[currentplayer])
-            case .shooting: break
+                playernum[currentplayer].currentState.next()
+            case .shooting:
+                playernum[currentplayer].currentState.next()
+                if currentplayer >= nplayer - 1 {
+                    currentplayer = 0
+                }
+                else {
+                    currentplayer += 1
+                }
             case .dead:
-                currentplayer = currentplayer + 1
+                playernum[currentplayer].currentState.next()
             }
         }
-        playernum[currentplayer].currentState.next()
     }
     
     struct c {
@@ -86,7 +98,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var currentState = GameState()
         
         var menu = SKSpriteNode()
-        let bullet = SKSpriteNode(imageNamed: "bullet")
+        var bullet = SKSpriteNode(imageNamed: "bullet")
         let arrow = SKSpriteNode(imageNamed: "arrow")
         
         var tank = SKSpriteNode(imageNamed: "tankbody")
@@ -98,7 +110,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         func setBullet() {
-            bullet.removeFromParent()
+            //bullet.removeFromParent()
+            bullet = SKSpriteNode(imageNamed: "bullet")
             bullet.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "bullet"), size: bullet.size)
             bullet.position = CGPoint(x: self.tank.position.x, y: self.tank.position.y+100)
             bullet.setScale(0.1)
@@ -109,7 +122,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             bullet.physicsBody?.contactTestBitMask = pc.tank
             bullet.physicsBody?.affectedByGravity = true
             bullet.physicsBody?.isDynamic = true
-            
         }
     }
     
@@ -139,14 +151,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnexplosion(spawnPosition: body1.node!.position)
             body1.node?.removeFromParent()
             //explode(contactPoint: contact.contactPoint)
-            
-            if currentplayer >= nplayer - 1 {
-                currentplayer = 0
-            }
-            else {
-                currentplayer += 1
-            }
-            
         }
         
         if body2.categoryBitMask == pc.tank {
@@ -155,12 +159,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             body2.node?.removeFromParent()
             playernum[currentplayer].currentState = .dead
             //explode(contactPoint: contact.contactPoint)
-            if currentplayer >= nplayer - 1 {
-                currentplayer = 0
-            }
-            else {
-                currentplayer += 1
-            }
         }
         
     }
@@ -169,7 +167,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if numalive > 1 {
             switch playernum[currentplayer].currentState {
             case .aiming:
-                setArrow(player: playernum[currentplayer])
+                //setArrow(player: playernum[currentplayer])
                 for touch: AnyObject in touches {
                     fingerlocation = touch.location(in: self)
                 }
@@ -201,7 +199,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     fingerlocation = touch.location(in: self)
                 }
                 playernum[currentplayer].radians = atan2(fingerlocation.y-playernum[currentplayer].tank.position.y, fingerlocation.x-playernum[currentplayer].tank.position.x)
-                playernum[currentplayer].arrow.zRotation = playernum[currentplayer].radians
+                //playernum[currentplayer].arrow.zRotation = playernum[currentplayer].radians
             case .powering: break
             case .shooting:break
             case .dead: break
@@ -214,7 +212,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             switch playernum[currentplayer].currentState {
             case .aiming:
                 playernum[currentplayer].radians = atan2(fingerlocation.y-playernum[currentplayer].tank.position.y, fingerlocation.x-playernum[currentplayer].tank.position.x)
-                playernum[currentplayer].arrow.zRotation = playernum[currentplayer].radians
+                //playernum[currentplayer].arrow.zRotation = playernum[currentplayer].radians
                 playernum[currentplayer].tankpipe.zRotation = playernum[currentplayer].radians
                 
                
@@ -229,16 +227,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         }
         print(playernum[currentplayer].currentState)
+        print(currentplayer)
     }
     
     func setUpGame() {
         self.physicsWorld.contactDelegate = self
         
         c.grav = -6
-        c.vel = 100
+        c.vel = 5000
         
-        let buttonTexture: SKTexture! = SKTexture(imageNamed: "button")
-        let buttonTextureSelected: SKTexture! = SKTexture(imageNamed: "buttonSelected.png")
+        let buttonTexture: SKTexture! = SKTexture(imageNamed: "tank")
+        let buttonTextureSelected: SKTexture! = SKTexture(imageNamed: "tankpipe")
         let button = FTButtonNode(normalTexture: buttonTexture, selectedTexture: buttonTextureSelected, disabledTexture: buttonTexture)
         button.setButtonAction(target: self, triggerEvent: .TouchUpInside, action: #selector(GameScene.buttonTap))
         button.setButtonLabel(title: "Weiter", font: "Arial", fontSize: 80)
@@ -262,10 +261,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum.append(player())
             
             playernum[i].tank.setScale(0.3)
-            playernum[i].tank.position = CGPoint(x: self.size.width / CGFloat(nplayer + 1) * CGFloat(i + 1), y: self.size.height*0.3)
             playernum[i].tank.zPosition = 4
+            playernum[i].tank.position = CGPoint(x: self.size.width / CGFloat(nplayer + 1) * CGFloat(i + 1), y: self.size.height*0.3)
             playernum[i].tank.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tank.size)
-            playernum[i].tank.physicsBody!.affectedByGravity = false
+            playernum[i].tank.physicsBody!.affectedByGravity = true
             playernum[i].tank.physicsBody!.categoryBitMask = pc.tank
             playernum[i].tank.physicsBody!.collisionBitMask = pc.ground
             playernum[i].tank.physicsBody!.contactTestBitMask = pc.bullet
@@ -275,18 +274,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum[i].tankpipe.physicsBody!.affectedByGravity = false
             playernum[i].tankpipe.physicsBody!.categoryBitMask = pc.tankpipe
             playernum[i].tankpipe.physicsBody!.collisionBitMask = pc.ground
-            
+            playernum[i].tankpipe.physicsBody!.isDynamic = false
+
             playernum[i].tankpipe.setScale(0.3)
             playernum[i].tankpipe.anchorPoint = CGPoint(x:0,y: 0.5)
             playernum[i].tankpipe.position = CGPoint(x: playernum[i].tank.position.x, y: playernum[i].tank.position.y+10)
             playernum[i].tankpipe.zPosition = 5
-            
+
+            let joint = SKPhysicsJointPin.joint(withBodyA: playernum[i].tankpipe.physicsBody!, bodyB: playernum[i].tank.physicsBody!, anchor: CGPoint(x: playernum[i].tank.position.x, y: playernum[i].tank.position.y+10))
             self.addChild(playernum[i].tankpipe)
-            
+            physicsWorld.add(joint)
         }
         
-        ground = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: 5))
-        ground.fillColor = .red
+        ground = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.frame.height / 10))
+        ground.fillColor = .green
         ground.strokeColor = .clear
         ground.position = CGPoint(x: self.frame.width / 2, y: self.frame.height * 2 / 10 - playernum[1].tank.frame.height / 2 - 5)
         ground.zPosition = 1
@@ -299,7 +300,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody!.affectedByGravity = false
         ground.physicsBody!.isDynamic = false
         ground.physicsBody!.friction = 1
-        self.addChild(ground)
+        cropNode.addChild(ground)
+        self.addChild(cropNode)
         
         labelanzeige.text = "Rechter Spieler: Ziele!"
         labelanzeige.position = CGPoint(x: self.frame.width / 2, y: self.frame.height*0.8)
@@ -311,22 +313,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func fire(angle: Double, vel: Double, player: player){
         player.setBullet()
-        addChild(player.bullet)
-        player.arrow.removeFromParent()
+        self.addChild(player.bullet)
+        //player.arrow.removeFromParent()
         let x = vel * cos(angle)
         let y = vel * sin(angle)
         let shotVec = CGVector(dx: x, dy: y)
         player.bullet.physicsBody?.applyImpulse(shotVec)
     }
     
-    func setArrow(player: player) {
+    
+    
+   /* func setArrow(player: player) {
         player.arrow.setScale(0.5)
         player.arrow.anchorPoint = CGPoint(x:0,y: 0.5)
         player.arrow.position = CGPoint(x: player.tank.position.x, y: player.tank.position.y)
         player.arrow.zPosition = 1
         self.addChild(player.arrow)
     }
-    
+    */
     /*func explode (contactPoint: CGPoint) {
      let explosion = SKSpriteNode (imageNamed: "explosion")
      explosion.setScale(0.1)
@@ -365,5 +369,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let explosionSequence = SKAction.sequence([scaleIn, fadeOut, delete])
         
         explosion.run(explosionSequence)
+        
+        let circle = SKShapeNode(circleOfRadius: 3)
+        circle.position = spawnPosition
+        circle.blendMode = .subtract
+        ground.removeFromParent()
+        
+        ground = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.frame.height / 10))
+        ground.fillColor = .green
+        ground.strokeColor = .clear
+        ground.position = CGPoint(x: self.frame.width / 2, y: self.frame.height * 2 / 10 - playernum[1].tank.frame.height / 2 - 5)
+        ground.zPosition = 1
+        ground.alpha = grids ? 1 : 0
+        
+        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.frame.size)
+        ground.physicsBody!.categoryBitMask = pc.ground
+        ground.physicsBody!.collisionBitMask = pc.none
+        ground.physicsBody!.contactTestBitMask = pc.bullet
+        ground.physicsBody!.affectedByGravity = false
+        ground.physicsBody!.isDynamic = false
+        ground.physicsBody!.friction = 1
+        
+        ground.addChild(circle)
+
+        cropNode.addChild(ground)
+        cropNode.maskNode = ground
+        cropNode.removeFromParent()
+        self.addChild(cropNode)
     }
 }
