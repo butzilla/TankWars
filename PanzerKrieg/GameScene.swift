@@ -21,7 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let nplayer = 2
     var numalive = 2
     var currentplayer = 0
-    var ground = SKShapeNode()
+    var ground = GroundNode()
     let cropNode = SKCropNode()
     var explosion = SKSpriteNode()
     
@@ -76,11 +76,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     struct pc {
-        static let none: UInt32 = 0
-        static let bullet: UInt32 = 0b1
-        static let ground: UInt32 = 0b10
-        static let tank: UInt32 = 0b100
-        static let tankpipe: UInt32 = 0b1000
+        static let none: UInt32 = 0x1 << 0
+        static let bullet: UInt32 = 0x1 << 1
+        static let ground: UInt32 = 0x1 << 2
+        static let tank: UInt32 = 0x1 << 3
+        static let tankpipe: UInt32 = 0x1 << 4
     }
     
     
@@ -148,16 +148,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         if body2.categoryBitMask == pc.ground {
-            spawnexplosion(spawnPosition: body1.node!.position)
+            spawnexplosion(ground: ground, spawnPosition: contact.contactPoint)
             body1.node?.removeFromParent()
+            
             //explode(contactPoint: contact.contactPoint)
         }
         
         if body2.categoryBitMask == pc.tank {
-            spawnexplosion(spawnPosition: body1.node!.position)
+            let number = Int((body2.node?.name)!)
+            spawnexplosion(ground: ground, spawnPosition: contact.contactPoint)
             body1.node?.removeFromParent()
             body2.node?.removeFromParent()
-            playernum[currentplayer].currentState = .dead
+            playernum[number!].tankpipe.removeFromParent()
+            playernum[number!].currentState = .dead
             //explode(contactPoint: contact.contactPoint)
         }
         
@@ -232,6 +235,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func setUpGame() {
         self.physicsWorld.contactDelegate = self
+        ground = GroundNode(color: UIColor.green, size: CGSize(width: 1968, height: 1125))
+        ground.position = CGPoint(x: (CGSize(width: 1968, height: 1125).width / 2) - (CGSize(width: 1968, height: 1125).width / 2), y: self.size.height / 2)
+        ground.setup()
+        addChild(ground)
+
+        /*  while currentX < 1968 {
+            let size = CGSize(width: 1, height: Int.random(in: 300...305))
+            currentX += size.width
+            
+            let groundstripe = GroundNode(color: UIColor.green, size: size)
+            groundstripe.position = CGPoint(x: currentX - (size.width / 2), y: size.height / 2)
+            groundstripe.setup()
+            addChild(groundstripe)
+            
+            ground.append(groundstripe)
+        }*/
         
         c.grav = -6
         c.vel = 5000
@@ -261,6 +280,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum.append(player())
             
             playernum[i].tank.setScale(0.3)
+            playernum[i].tank.name = String(i)
             playernum[i].tank.zPosition = 4
             playernum[i].tank.position = CGPoint(x: self.size.width / CGFloat(nplayer + 1) * CGFloat(i + 1), y: self.size.height*0.3)
             playernum[i].tank.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tank.size)
@@ -268,13 +288,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum[i].tank.physicsBody!.categoryBitMask = pc.tank
             playernum[i].tank.physicsBody!.collisionBitMask = pc.ground
             playernum[i].tank.physicsBody!.contactTestBitMask = pc.bullet
+            playernum[i].tank.physicsBody!.isDynamic = true
             self.addChild(playernum[i].tank)
             
             playernum[i].tankpipe.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tankpipe.size)
             playernum[i].tankpipe.physicsBody!.affectedByGravity = false
             playernum[i].tankpipe.physicsBody!.categoryBitMask = pc.tankpipe
             playernum[i].tankpipe.physicsBody!.collisionBitMask = pc.ground
-            playernum[i].tankpipe.physicsBody!.isDynamic = false
+            playernum[i].tankpipe.physicsBody!.isDynamic = true
 
             playernum[i].tankpipe.setScale(0.3)
             playernum[i].tankpipe.anchorPoint = CGPoint(x:0,y: 0.5)
@@ -286,7 +307,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             physicsWorld.add(joint)
         }
         
-        ground = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.frame.height / 10))
+       /* ground = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.frame.height / 10))
         ground.fillColor = .green
         ground.strokeColor = .clear
         ground.position = CGPoint(x: self.frame.width / 2, y: self.frame.height * 2 / 10 - playernum[1].tank.frame.height / 2 - 5)
@@ -299,9 +320,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.physicsBody!.contactTestBitMask = pc.bullet
         ground.physicsBody!.affectedByGravity = false
         ground.physicsBody!.isDynamic = false
-        ground.physicsBody!.friction = 1
+        ground.physicsBody!.friction = 0.2
         cropNode.addChild(ground)
-        self.addChild(cropNode)
+        self.addChild(cropNode)*/
         
         labelanzeige.text = "Rechter Spieler: Ziele!"
         labelanzeige.position = CGPoint(x: self.frame.width / 2, y: self.frame.height*0.8)
@@ -355,7 +376,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
      
      */
     
-    func spawnexplosion (spawnPosition: CGPoint) {
+    func spawnexplosion (ground: GroundNode, spawnPosition: CGPoint) {
         let explosion = SKSpriteNode (imageNamed: "explosion")
         explosion.position = spawnPosition
         explosion.zPosition  = 10
@@ -370,31 +391,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         explosion.run(explosionSequence)
         
-        let circle = SKShapeNode(circleOfRadius: 3)
-        circle.position = spawnPosition
-        circle.blendMode = .subtract
-        ground.removeFromParent()
-        
-        ground = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.frame.height / 10))
-        ground.fillColor = .green
-        ground.strokeColor = .clear
-        ground.position = CGPoint(x: self.frame.width / 2, y: self.frame.height * 2 / 10 - playernum[1].tank.frame.height / 2 - 5)
-        ground.zPosition = 1
-        ground.alpha = grids ? 1 : 0
-        
-        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.frame.size)
-        ground.physicsBody!.categoryBitMask = pc.ground
-        ground.physicsBody!.collisionBitMask = pc.none
-        ground.physicsBody!.contactTestBitMask = pc.bullet
-        ground.physicsBody!.affectedByGravity = false
-        ground.physicsBody!.isDynamic = false
-        ground.physicsBody!.friction = 1
-        
-        ground.addChild(circle)
-
-        cropNode.addChild(ground)
-        cropNode.maskNode = ground
-        cropNode.removeFromParent()
-        self.addChild(cropNode)
+       // let groundLocation = convert(spawnPosition, to: ground)
+      //  ground.hitAt(point: groundLocation)
     }
 }
