@@ -19,7 +19,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var grids = true
     
-    let nplayer = 2
+    let nplayer = 5
     var numalive = 2
     var currentplayer = 0
     var wind = 0
@@ -150,10 +150,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 body1.node?.name = ""
                 playernum[number!].tankpipe.removeFromParent()
                 playernum[number!].currentState = .dead
+                numalive -= 1
+                if numalive < 2 {
+                    let newGame = GameScene(size: self.size)              // seitenverhältnis wird irgendwie geändert
+                    let transition = SKTransition.crossFade(withDuration: 2)
+                    self.view?.presentScene(newGame, transition: transition)
+                }
                 
-                let newGame = GameScene(size: self.size)              // seitenverhältnis wird irgendwie geändert
-                let transition = SKTransition.crossFade(withDuration: 2)
-                self.view?.presentScene(newGame, transition: transition)
                 //explode(contactPoint: contact.contactPoint)
             }
         }
@@ -261,7 +264,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         for i in 0...nplayer-1 {
             playernum.append(player())
             
-            playernum[i].tank.setScale(0.1)
+            playernum[i].tank.setScale(0.18)
             playernum[i].tank.name = String(i)
             playernum[i].tank.zPosition = 4
             playernum[i].tank.position = CGPoint(x: self.size.width / CGFloat(nplayer + 1) * CGFloat(i + 1), y: 600)
@@ -272,20 +275,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum[i].tank.physicsBody!.contactTestBitMask = pc.bullet
             playernum[i].tank.physicsBody!.isDynamic = true
             playernum[i].tank.physicsBody!.friction = 1
-            playernum[i].tank.physicsBody!.restitution = 1
+            playernum[i].tank.physicsBody!.mass = 100
+
+            playernum[i].tank.physicsBody!.restitution = 0
 
             self.addChild(playernum[i].tank)
             
-            playernum[i].tankpipe.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tankpipe.size)
+            playernum[i].tankpipe.setScale(0.18)
+            playernum[i].tankpipe.anchorPoint = CGPoint(x:0,y: 0.5)
+            playernum[i].tankpipe.position = CGPoint(x: playernum[i].tank.position.x, y: playernum[i].tank.position.y+10)
+            playernum[i].tankpipe.zPosition = 5
+            let centerPoint = CGPoint(x:playernum[i].tankpipe.size.width / 2 - (playernum[i].tankpipe.size.width * playernum[i].tankpipe.anchorPoint.x), y:playernum[i].tankpipe.size.height / 2 - (playernum[i].tankpipe.size.height * playernum[i].tankpipe.anchorPoint.y))
+            
+            playernum[i].tankpipe.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tankpipe.size, center: centerPoint)
             playernum[i].tankpipe.physicsBody!.affectedByGravity = false
             playernum[i].tankpipe.physicsBody!.categoryBitMask = pc.tankpipe
             playernum[i].tankpipe.physicsBody!.collisionBitMask = pc.ground
             playernum[i].tankpipe.physicsBody!.isDynamic = true
 
-            playernum[i].tankpipe.setScale(0.1)
-            playernum[i].tankpipe.anchorPoint = CGPoint(x:0,y: 0.5)
-            playernum[i].tankpipe.position = CGPoint(x: playernum[i].tank.position.x, y: playernum[i].tank.position.y+10)
-            playernum[i].tankpipe.zPosition = 5
+            
 
             let joint = SKPhysicsJointPin.joint(withBodyA: playernum[i].tankpipe.physicsBody!, bodyB: playernum[i].tank.physicsBody!, anchor: CGPoint(x: playernum[i].tank.position.x, y: playernum[i].tank.position.y+10))
             self.addChild(playernum[i].tankpipe)
