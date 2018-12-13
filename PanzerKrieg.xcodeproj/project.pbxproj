@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		C644A6D621B18D0D00DE63C2 /* Button.swift in Sources */ = {isa = PBXBuildFile; fileRef = C644A6D521B18D0D00DE63C2 /* Button.swift */; };
+		CF517B6D21C2C087007945DF /* BezierePathExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF517B6C21C2C087007945DF /* BezierePathExtension.swift */; };
 		CF53A89B21C13C5B00B983C1 /* GroundNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF53A89A21C13C5B00B983C1 /* GroundNode.swift */; };
 		F44812F721A5F68900B6F418 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44812F621A5F68900B6F418 /* AppDelegate.swift */; };
 		F44812F921A5F68900B6F418 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = F44812F821A5F68900B6F418 /* GameScene.sks */; };
@@ -40,6 +41,7 @@
 
 /* Begin PBXFileReference section */
 		C644A6D521B18D0D00DE63C2 /* Button.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Button.swift; sourceTree = "<group>"; };
+		CF517B6C21C2C087007945DF /* BezierePathExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BezierePathExtension.swift; sourceTree = "<group>"; };
 		CF53A89A21C13C5B00B983C1 /* GroundNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroundNode.swift; sourceTree = "<group>"; };
 		F44812F321A5F68900B6F418 /* PanzerKrieg.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PanzerKrieg.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F44812F621A5F68900B6F418 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 				F44812F821A5F68900B6F418 /* GameScene.sks */,
 				F44812FA21A5F68900B6F418 /* Actions.sks */,
 				F44812FC21A5F68900B6F418 /* GameScene.swift */,
+				CF517B6C21C2C087007945DF /* BezierePathExtension.swift */,
 				CF53A89A21C13C5B00B983C1 /* GroundNode.swift */,
 				F44812FE21A5F68900B6F418 /* GameViewController.swift */,
 				F448130021A5F68900B6F418 /* Main.storyboard */,
@@ -278,6 +281,7 @@
 				F44812F721A5F68900B6F418 /* AppDelegate.swift in Sources */,
 				CF53A89B21C13C5B00B983C1 /* GroundNode.swift in Sources */,
 				C644A6D621B18D0D00DE63C2 /* Button.swift in Sources */,
+				CF517B6D21C2C087007945DF /* BezierePathExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

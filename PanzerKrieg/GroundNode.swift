@@ -32,6 +32,7 @@ class GroundNode: SKSpriteNode {
     func configurePhysics() {
         physicsBody = SKPhysicsBody(texture: texture!, size: size)
         physicsBody?.isDynamic = false
+        physicsBody?.friction = 1
         physicsBody?.categoryBitMask = pc.ground
         physicsBody?.contactTestBitMask = pc.bullet
     }
@@ -40,7 +41,15 @@ class GroundNode: SKSpriteNode {
     func drawGround(size: CGSize) -> UIImage {
         // 1
         let renderer = UIGraphicsImageRenderer(size: size)
+        var ground = CGMutablePath()
         var currentX: CGFloat = 0
+        var groundpoints : [CGPoint] = []
+        
+        
+        ground.move(to: CGPoint(x: 1968, y: 650))
+        let bottom = [CGPoint(x: 1968, y: 800),CGPoint(x: 1968, y: 1125), CGPoint(x: 0, y: 1125), CGPoint(x: 0, y: 800)]
+        groundpoints.append(CGPoint(x: 0, y: 800))
+        ground.addLines(between: bottom)
         let img = renderer.image { ctx in
             // 2
             //var color: UIColor
@@ -55,12 +64,16 @@ class GroundNode: SKSpriteNode {
             } */
            // color = UIColor(hue: 0.502, saturation: 0.98, brightness: 0.68, alpha: 1)
             while currentX < 1968 {
-                let size = CGSize(width: 20, height: Int.random(in: 300...320))
-                currentX += size.width
-                let position = CGPoint(x: currentX, y: 1125)
-                let rectangle = CGRect(x: position.x, y: position.y, width: size.width, height: -size.height)
-                ctx.cgContext.addRect(rectangle)
+                //let size = CGSize(width: 20, height: Int.random(in: 300...320))
+                currentX += 246
+                let position = CGPoint(x: currentX, y: CGFloat.random(in: 500...800))
+                //let rectangle = CGRect(x: position.x, y: position.y, width: size.width, height: -size.height)
+                //ctx.cgContext.addRect(rectangle)
+                groundpoints.append(position)
             }
+            groundpoints.append(CGPoint(x: 1968, y: 800))
+            ground.interpolatePointsWithHermite(interpolationPoints: groundpoints)
+            ctx.cgContext.addPath(ground)
             ctx.cgContext.setFillColor(color.cgColor)
             ctx.cgContext.drawPath(using: .fill)
         }
@@ -71,7 +84,6 @@ class GroundNode: SKSpriteNode {
     
     func hitAt(point: CGPoint) {
         let convertedPoint = CGPoint(x: point.x + size.width / 2.0, y: abs(point.y - (size.height / 2.0)))
-        
         let renderer = UIGraphicsImageRenderer(size: size)
         let img = renderer.image { ctx in
             currentImage.draw(at: CGPoint(x: 0, y: 0))
