@@ -13,7 +13,8 @@ import GameplayKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
     var gameScene : GameScene!
     var labelanzeige = SKLabelNode()
-    
+    var windlbl = SKLabelNode()
+
     var fingerlocation = CGPoint()
     
     var grids = true
@@ -21,6 +22,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let nplayer = 2
     var numalive = 2
     var currentplayer = 0
+    var wind = 0
     var ground = GroundNode()
     let cropNode = SKCropNode()
     var explosion = SKSpriteNode()
@@ -58,12 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 playernum[currentplayer].currentState.next()
             case .shooting:
                 playernum[currentplayer].currentState.next()
-                if currentplayer >= nplayer - 1 {
-                    currentplayer = 0
-                }
-                else {
-                    currentplayer += 1
-                }
+                changePlayer()
             case .dead:
                 playernum[currentplayer].currentState.next()
             }
@@ -109,21 +106,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         var labelarmor = SKLabelNode()
         
         
-        func setBullet() {
-            //bullet.removeFromParent()
-            bullet = SKSpriteNode(imageNamed: "bullet")
-            bullet.name = "bullet"
-            bullet.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "bullet"), size: bullet.size)
-            bullet.position = CGPoint(x: self.tank.position.x, y: self.tank.position.y+100)
-            bullet.setScale(0.03)
-            bullet.zPosition = 3
-            bullet.physicsBody?.categoryBitMask = pc.bullet
-            bullet.physicsBody?.collisionBitMask = pc.none
-            bullet.physicsBody?.contactTestBitMask = pc.ground
-            bullet.physicsBody?.contactTestBitMask = pc.tank
-            bullet.physicsBody?.affectedByGravity = true
-            bullet.physicsBody?.isDynamic = true
-        }
+        
     }
     
     var playernum: [player] = []
@@ -250,18 +233,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ground.setup()
         ground.zPosition = 3
         addChild(ground)
-
-        /*  while currentX < 1968
-            let size = CGSize(width: 1, height: Int.random(in: 300...305))
-            currentX += size.width
-            
-            let groundstripe = GroundNode(color: UIColor.green, size: size)
-            groundstripe.position = CGPoint(x: currentX - (size.width / 2), y: size.height / 2)
-            groundstripe.setup()
-            addChild(groundstripe)
-            
-            ground.append(groundstripe)
-        }*/
         
         c.grav = -6
         c.vel = 5000
@@ -300,8 +271,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum[i].tank.physicsBody!.collisionBitMask = pc.ground
             playernum[i].tank.physicsBody!.contactTestBitMask = pc.bullet
             playernum[i].tank.physicsBody!.isDynamic = true
-            //playernum[i].tank.physicsBody!.mass = 10000
             playernum[i].tank.physicsBody!.friction = 1
+            playernum[i].tank.physicsBody!.restitution = 1
 
             self.addChild(playernum[i].tank)
             
@@ -321,39 +292,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             physicsWorld.add(joint)
         }
         
-       /* ground = SKShapeNode(rectOf: CGSize(width: self.frame.width*2, height: self.frame.height / 10))
-        ground.fillColor = .green
-        ground.strokeColor = .clear
-        ground.position = CGPoint(x: self.frame.width / 2, y: self.frame.height * 2 / 10 - playernum[1].tank.frame.height / 2 - 5)
-        ground.zPosition = 1
-        ground.alpha = grids ? 1 : 0
-        
-        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.frame.size)
-        ground.physicsBody!.categoryBitMask = pc.ground
-        ground.physicsBody!.collisionBitMask = pc.none
-        ground.physicsBody!.contactTestBitMask = pc.bullet
-        ground.physicsBody!.affectedByGravity = false
-        ground.physicsBody!.isDynamic = false
-        ground.physicsBody!.friction = 0.2
-        cropNode.addChild(ground)
-        self.addChild(cropNode)*/
-        
-        labelanzeige.text = "Rechter Spieler: Ziele!"
+       /* labelanzeige.text = "Rechter Spieler: Ziele!"
         labelanzeige.position = CGPoint(x: self.frame.width / 2, y: self.frame.height*0.8)
         labelanzeige.fontColor = SKColor.black
         labelanzeige.fontSize = 50
-        self.addChild(labelanzeige)
+        self.addChild(labelanzeige)*/
+        
+        windlbl.text = "Wind = 0"
+        windlbl.position = CGPoint(x: self.frame.width / 2, y: self.frame.height*0.8)
+        windlbl.fontSize = self.frame.width/25
+        windlbl.fontColor = SKColor.black
+        windlbl.zPosition = background.zPosition + 1
+        self.addChild(windlbl)
+        setWind()
     }
     
     
     func fire(angle: Double, vel: Double, player: player){
-        player.setBullet()
+        setBullet(player: player)
         self.addChild(player.bullet)
         //player.arrow.removeFromParent()
         let x = vel * cos(angle)
         let y = vel * sin(angle)
         let shotVec = CGVector(dx: x, dy: y)
         player.bullet.physicsBody?.applyImpulse(shotVec)
+        let windvec = CGVector(dx: wind, dy: 0)
+        let push = SKAction.applyForce(windvec, duration: 1)
+        player.bullet.run(push)
     }
     
     
@@ -407,4 +372,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let groundLocation = convert(spawnPosition, to: ground)
         ground.hitAt(point: groundLocation)
     }
+    
+    func setWind() {
+        let rnd = Int.random(in: -10...10)
+        let factor = 200
+        windlbl.text = "Wind = \(rnd)"
+        wind = rnd * factor
+    }
+
+    func setBullet(player: player) {
+        //bullet.removeFromParent()
+        player.bullet = SKSpriteNode(imageNamed: "bullet")
+        player.bullet.name = "bullet"
+        player.bullet.physicsBody = SKPhysicsBody(texture: SKTexture(imageNamed: "bullet"), size: player.bullet.size)
+        player.bullet.position = CGPoint(x: player.tank.position.x, y: player.tank.position.y+100)
+        player.bullet.setScale(0.03)
+        player.bullet.zPosition = 3
+        player.bullet.physicsBody?.categoryBitMask = pc.bullet
+        player.bullet.physicsBody?.collisionBitMask = pc.none
+        player.bullet.physicsBody?.contactTestBitMask = pc.ground
+        player.bullet.physicsBody?.contactTestBitMask = pc.tank
+        player.bullet.physicsBody?.affectedByGravity = true
+        player.bullet.physicsBody?.isDynamic = true
+    }
+    
+    func changePlayer() {
+        if currentplayer >= nplayer - 1 {
+            currentplayer = 0
+        }
+        else {
+            currentplayer += 1
+        }
+        setWind()
+    }
 }
+
+
+
