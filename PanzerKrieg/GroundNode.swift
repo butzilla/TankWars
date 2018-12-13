@@ -43,7 +43,7 @@ class GroundNode: SKSpriteNode {
         var currentX: CGFloat = 0
         let img = renderer.image { ctx in
             // 2
-            var color: UIColor
+            //var color: UIColor
             
         /*switch Int.random(in: 0...2) {
             case 0:
@@ -53,16 +53,16 @@ class GroundNode: SKSpriteNode {
             default:
                 color = UIColor(hue: 0, saturation: 0, brightness: 0.67, alpha: 1)
             } */
-            color = UIColor(hue: 0.502, saturation: 0.98, brightness: 0.67, alpha: 1)
+           // color = UIColor(hue: 0.502, saturation: 0.98, brightness: 0.68, alpha: 1)
             while currentX < 1968 {
-                let size = CGSize(width: 1, height: Int.random(in: 300...320))
+                let size = CGSize(width: 20, height: Int.random(in: 300...320))
                 currentX += size.width
-                let position = CGPoint(x: currentX - (size.width / 2), y: size.height / 2)
-                let rectangle = CGRect(x: position.x, y: position.y, width: size.width, height: size.height)
+                let position = CGPoint(x: currentX, y: 1125)
+                let rectangle = CGRect(x: position.x, y: position.y, width: size.width, height: -size.height)
                 ctx.cgContext.addRect(rectangle)
             }
             ctx.cgContext.setFillColor(color.cgColor)
-            //ctx.cgContext.drawPath(using: .fill)
+            ctx.cgContext.drawPath(using: .fill)
         }
         
         

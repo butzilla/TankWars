@@ -236,11 +236,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func setUpGame() {
         self.physicsWorld.contactDelegate = self
         ground = GroundNode(color: UIColor.green, size: CGSize(width: 1968, height: 1125))
-        ground.position = CGPoint(x: (CGSize(width: 1968, height: 1125).width / 2) - (CGSize(width: 1968, height: 1125).width / 2), y: self.size.height / 2)
+        ground.position = CGPoint(x:  (CGSize(width: 1968, height: 400).width / 2), y: 700)
         ground.setup()
+        ground.zPosition = 3
         addChild(ground)
 
-        /*  while currentX < 1968 {
+        /*  while currentX < 1968
             let size = CGSize(width: 1, height: Int.random(in: 300...305))
             currentX += size.width
             
@@ -282,7 +283,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playernum[i].tank.setScale(0.3)
             playernum[i].tank.name = String(i)
             playernum[i].tank.zPosition = 4
-            playernum[i].tank.position = CGPoint(x: self.size.width / CGFloat(nplayer + 1) * CGFloat(i + 1), y: self.size.height*0.3)
+            playernum[i].tank.position = CGPoint(x: self.size.width / CGFloat(nplayer + 1) * CGFloat(i + 1), y: 2000)
             playernum[i].tank.physicsBody = SKPhysicsBody(rectangleOf: playernum[i].tank.size)
             playernum[i].tank.physicsBody!.affectedByGravity = true
             playernum[i].tank.physicsBody!.categoryBitMask = pc.tank
@@ -391,7 +392,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         explosion.run(explosionSequence)
         
-       // let groundLocation = convert(spawnPosition, to: ground)
-      //  ground.hitAt(point: groundLocation)
+       let groundLocation = convert(spawnPosition, to: ground)
+       ground.hitAt(point: groundLocation)
     }
 }
